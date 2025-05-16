@@ -1,0 +1,1227 @@
+# Simple Answers Log
+# Generated: 2025-05-16 17:58:13
+# Format: Sample ID, Equation, Ground Truth, LLM Raw Response
+
+# Note: ListOps Operators:
+#   SUM: Regular sum
+#   SM: Sum modulo 10 (sum % 10)
+#   AVG: Average with floor division
+#   MIN: Minimum value
+#   MAX: Maximum value
+#   MED: Median value
+
+Sample 4:
+Equation: (SUM (MIN (MAX (SM (SM (AVG (AVG (SUM 7 15 1 7 20 29) 29 3 18 5 1 5 9) 4 5 30 28 6 7 25) 27 23 6 20 7 13) 30 23 23 12 4) 30 19 5 18 12 14) 10 26 22 3 14) 18 20 25 6 10 26 7)
+Ground Truth: 115 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 115
+Parsed Answer: 115 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 115
+Parsed Answer: 115 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 115
+Parsed Answer: 115 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 99
+Parsed Answer: 99 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 192
+Parsed Answer: 192 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 115
+Parsed Answer: 115 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 115
+Parsed Answer: 115 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: Let's break this down systematically, evaluating the innermost expressions first and working our way outward.
+
+1. Start with the innermost expression: `(SUM 7 15 1 7 20 29)`
+   - 7 + 15 + 1 + 7 + 20 + 29 = 79
+
+2. Now evaluate: `(AVG 79 29 3 18 5 1 5 9)`
+   - Sum: 79 + 29 + 3 + 18 + 5 + 1 + 5 + 9 = 149
+   - Count: 8
+   - AVG: 149 / 8 = 18.625 → floor to 18
+
+3. Now evaluate: `(AVG 18 4 5 30 28 6 7 25)`
+   - Sum: 18 + 4 + 5 + 30 + 28 + 6 + 7 + 25 = 123
+   - Count: 8
+   - AVG: 123 / 8 = 15.375 → floor to 15
+
+4. Now evaluate: `(SM 15 27 23 6 20 7 13)`
+   - Sum: 15 + 27 + 23 + 6 + 20 + 7 + 13 = 111
+   - SM: 111 % 10 = 1
+
+5. Now evaluate: `(SM 1 30 23 23 12 4)`
+   - Sum: 1 + 30 + 23 + 23 + 12 + 4 = 93
+   - SM: 93 % 10 = 3
+
+6. Now evaluate: `(MAX 3 30 19 5 18 12 14)`
+   - MAX: 30
+
+7. Now evaluate: `(MIN 30 10 26 22 3 14)`
+   - MIN: 3
+
+8. Now evaluate the outermost `(SUM 3 18 20 25 6 10 26 7)`
+   - 3 + 18 + 20 + 25 + 6 + 10 + 26 + 7 = 115
+
+Final answer: 115
+Parsed Answer: 115 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 111
+Parsed Answer: 111 (✓ vs Ground Truth, ✗ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: ## Step 1: Evaluate the innermost expression `(SUM 7 15 1 7 20 29)`
+First, we sum the numbers: 7 + 15 + 1 + 7 + 20 + 29 = 79.
+
+## Step 2: Evaluate `(AVG 79 29 3 18 5 1 5 9)`
+First, sum the numbers: 79 + 29 + 3 + 18 + 5 + 1 + 5 + 9 = 149. Then, count the numbers: there are 8 numbers. So, `(AVG 79 29 3 18 5 1 5 9)` = 149 / 8 = 18.625, which rounds down to 18.
+
+## Step 3: Evaluate `(SM 18 4 5 30 28 6 7 25)`
+First, sum the numbers: 18 + 4 + 5 + 30 + 28 + 6 + 7 + 25 = 123. Then, take the sum modulo 10: 123 % 10 = 3.
+
+## Step 4: Evaluate `(SM 3 27 23 6 20 7 13)`
+First, sum the numbers: 3 + 27 + 23 + 6 + 20 + 7 + 13 = 99. Then, take the sum modulo 10: 99 % 10 = 9.
+
+## Step 5: Evaluate `(MAX 9 30 23 23 12 4)`
+First, find the maximum: max(9, 30, 23, 23, 12, 4) = 30.
+
+## Step 6: Evaluate `(MIN 30 19 5 18 12 14)`
+First, find the minimum: min(30, 19, 5, 18, 12, 14) = 5.
+
+## Step 7: Evaluate `(MAX 5 10 26 22 3 14)`
+First, find the maximum: max(5, 10, 26, 22, 3, 14) = 26.
+
+## Step 8: Evaluate `(MIN 26 18 20 25 6 10 26 7)`
+First, find the minimum: min(26, 18, 20, 25, 6, 10, 26, 7) = 6.
+
+## Step 9: Evaluate `(SUM 6 18 20 25 6 10 26 7)`
+First, sum the numbers: 6 + 18 + 20 + 25 + 6 + 10 + 26 + 7 = 118.
+
+## Step 10: Now, let's put it all together step by step with the given equation.
+1. `(SUM 7 15 1 7 20 29)` = 79 (from Step 1).
+2. `(AVG 79 29 3 18 5 1 5 9)` = 18 (from Step 2).
+3. `(SM 18 4 5 30 28 6 7 25)` = 3 (from Step 3).
+4. `(SM 3 27 23 6 20 7 13)` = 9 (from Step 4).
+5. `(MAX 9 30 23 23 12 4)` = 30 (from Step 5).
+6. `(MIN 30 19 5 18 12 14)` = 5 (from Step 6).
+7. `(MAX 5 10 26 22 3 14)` = 26 (from Step 7).
+8. `(MIN 26 18 20 25 6 10 26 7)` = 6 (from Step 8).
+9. `(SUM 6 18 20 25 6 10 26 7)` = 118 (from Step 9).
+So, the equation simplifies to: `(SUM (MIN (MAX (SM (SM (AVG (AVG 79 29 3 18 5 1 5 9) 4 5 30 28 6 7 25) 27 23 6 20 7 13) 30 23 23 12 4) 30 19 5 18 12 14) 10 26 22 3 14) 18 20 25 6 10 26 7)`.
+Which further simplifies to: `(SUM (MIN (MAX (SM (SM 18 4 5 30 28 6 7 25) 27 23 6 20 7 13) 30 23 23 12 4) 30 19 5 18 12 14) 10 26 22 3 14) 118)`.
+Then to: `(SUM (MIN (MAX (SM 3 27 23 6 20 7 13) 30 23 23 12 4) 30 19 5 18 12 14) 10 26 22 3 14) 118)`.
+Then to: `(SUM (MIN (MAX 9 30 23 23 12 4) 30 19 5 18 12 14) 10 26 22 3 14) 118)`.
+Then to: `(SUM (MIN 30 30 19 5 18 12 14) 10 26 22 3 14) 118)`.
+Then to: `(SUM (MIN 30 30 19 5 18 12 14) 10 26 22 3 14) 118)`.
+Which is: `(SUM 5 10 26 22 3 14) 118)`.
+Then: `(SUM 5 10 26 22 3 14)` = 80.
+So, we have: `(SUM 80 118)`.
+
+## Step 11: Evaluate `(SUM 80 118)`
+Sum the numbers: 80 + 118 = 198.
+
+The final answer is: $\boxed{198}$
+Parsed Answer: 198 (✗ vs Ground Truth, ✗ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 5:
+Equation: (MAX (SUM (MAX (SM (MAX (SM (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24) 9 9 30) 8 20 12) 14 2 3) 29 19 29 6 12 3) 13 15 17) 10 10 25 6)
+Ground Truth: 74 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 74
+Parsed Answer: 74 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 74
+Parsed Answer: 74 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 74
+Parsed Answer: 74 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 29
+Parsed Answer: 29 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 84
+Parsed Answer: 84 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 
+Parsed Answer: None (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 74
+Parsed Answer: 74 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: Let's break this down systematically from the innermost parentheses outward:
+
+1. `(SM 3 9 4 8 10 28 17)`  
+   Sum: 3+9+4+8+10+28+17 = 79  
+   SM: 79 % 10 = 9  
+
+2. `(MAX 9 4 4 28 9 5 24)`  
+   MAX: 28  
+
+3. `(SM 28 9 9 30)`  
+   Sum: 28+9+9+30 = 76  
+   SM: 76 % 10 = 6  
+
+4. `(MAX 6 8 20 12)`  
+   MAX: 20  
+
+5. `(SM 20 14 2 3)`  
+   Sum: 20+14+2+3 = 39  
+   SM: 39 % 10 = 9  
+
+6. `(MAX 9 29 19 29 6 12 3)`  
+   MAX: 29  
+
+7. `(SUM 29 13 15 17)`  
+   SUM: 29+13+15+17 = 74  
+
+8. `(MAX 74 10 10 25 6)`  
+   MAX: 74  
+
+Final answer: `74`
+Parsed Answer: 74 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 29
+Parsed Answer: 29 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: ## Step 1: Evaluate the innermost expression (SM 3 9 4 8 10 28 17)
+First, we sum the numbers: 3 + 9 + 4 + 8 + 10 + 28 + 17 = 79. Then, we take the sum modulo 10: 79 % 10 = 9.
+
+## Step 2: Evaluate (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24)
+We already know (SM 3 9 4 8 10 28 17) = 9. So, we have (MAX 9 4 4 28 9 5 24). The maximum of these numbers is 28.
+
+## Step 3: Evaluate (SM (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24) 9 9 30)
+We found (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24) = 28. So, we calculate (SM 28 9 9 30) = (28 + 9 + 9 + 30) = 76, and 76 % 10 = 6.
+
+## Step 4: Evaluate (MAX (SM (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24) 9 9 30) 8 20 12)
+We found (SM 28 9 9 30) = 6. So, we have (MAX 6 8 20 12). The maximum of these numbers is 20.
+
+## Step 5: Evaluate (SM (MAX (SM (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24) 9 9 30) 8 20 12) 14 2 3)
+We found (MAX 6 8 20 12) = 20. So, we calculate (SM 20 14 2 3) = (20 + 14 + 2 + 3) = 39, and 39 % 10 = 9.
+
+## Step 6: Evaluate (SUM (MAX (SM (MAX (SM (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24) 9 9 30) 8 20 12) 14 2 3) 29 19 29 6 12 3)
+We found (SM 20 14 2 3) = 9. So, we have (SUM (MAX 9 29 19 29 6 12 3)). First, find (MAX 9 29 19 29 6 12 3) = 29. Then, (SUM 29 29 19 29 6 12 3) = 127.
+
+## Step 7: Evaluate (MAX (SUM (MAX (SM (MAX (SM (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24) 9 9 30) 8 20 12) 14 2 3) 29 19 29 6 12 3) 13 15 17)
+We found (SUM 29 29 19 29 6 12 3) = 127. So, we have (MAX 127 13 15 17). The maximum of these numbers is 127.
+
+## Step 8: Evaluate (MAX (MAX (SUM (MAX (SM (MAX (SM (MAX (SM 3 9 4 8 10 28 17) 4 4 28 9 5 24) 9 9 30) 8 20 12) 14 2 3) 29 19 29 6 12 3) 13 15 17) 10 10 25 6)
+We found (MAX 127 13 15 17) = 127. So, we have (MAX 127 10 10 25 6). The maximum of these numbers is 127.
+
+The final answer is: $\boxed{127}$
+Parsed Answer: 127 (✗ vs Ground Truth, ✗ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 12:
+Equation: (AVG (MED (AVG (MIN (SM (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14) 23 14 20 5 12) 27 26 30 21) 29 5 22 20) 18 27 26 25 9 15)
+Ground Truth: 20 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 20
+Parsed Answer: 20 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 20
+Parsed Answer: 20 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 20
+Parsed Answer: 20 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 17
+Parsed Answer: 17 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 20
+Parsed Answer: 20 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 
+Parsed Answer: None (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 20
+Parsed Answer: 20 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: Alright, let's tackle this complex ListOps equation step by step. I'll start by breaking it down from the innermost parentheses outward. Here's the expression we're dealing with:
+
+```lisp
+(AVG (MED (AVG (MIN (SM (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14) 23 14 20 5 12) 27 26 30 21) 29 5 22 20) 18 27 26 25 9 15)
+```
+
+### Step 1: Innermost Expression - `(SM 6 13 15 21)`
+First, let's evaluate `(SM 6 13 15 21)`.
+
+- `SM` means sum the numbers and then take modulo 10.
+- Sum: 6 + 13 + 15 + 21 = 55
+- 55 % 10 = 5
+- Result: `5`
+
+### Step 2: Next Level - `(MIN (SM 6 13 15 21) 27 9 8 21)`
+Now, replace `(SM 6 13 15 21)` with `5`:
+
+`(MIN 5 27 9 8 21)`
+
+- `MIN` finds the smallest number.
+- Numbers: 5, 27, 9, 8, 21
+- Minimum is `5`
+- Result: `5`
+
+### Step 3: Next - `(SM (MIN ...) 9 14 28 11 2 10 1)`
+Replace `(MIN ...)` with `5`:
+
+`(SM 5 9 14 28 11 2 10 1)`
+
+- Sum: 5 + 9 + 14 + 28 + 11 + 2 + 10 + 1 = 80
+- 80 % 10 = 0
+- Result: `0`
+
+### Step 4: Next - `(SM (SM ...) 13 30 30 14)`
+Replace `(SM ...)` with `0`:
+
+`(SM 0 13 30 30 14)`
+
+- Sum: 0 + 13 + 30 + 30 + 14 = 87
+- 87 % 10 = 7
+- Result: `7`
+
+### Step 5: Next - `(MIN (SM ...) 23 14 20 5 12)`
+Replace `(SM ...)` with `7`:
+
+`(MIN 7 23 14 20 5 12)`
+
+- Numbers: 7, 23, 14, 20, 5, 12
+- Minimum is `5`
+- Result: `5`
+
+### Step 6: Next - `(AVG (MIN ...) 23 14 20 5 12)`
+Wait, looking back, the previous step was `(MIN (SM ...) 23 14 20 5 12)`, which gave us `5`. 
+
+But looking at the original expression, the structure is:
+
+`(AVG (MIN (SM (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14) 23 14 20 5 12) 27 26 30 21)`
+
+Wait, let me re-express the current step correctly. After `(MIN (SM ...) 23 14 20 5 12)` which is `5`, the next is `(AVG (MIN ...) 23 14 20 5 12)`. Wait no, that doesn't make sense because `(MIN ...)` already includes `23 14 20 5 12`.
+
+Wait, let me reconstruct the expression properly. The full expression is:
+
+`(AVG (MED (AVG (MIN (SM (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14) 23 14 20 5 12) 27 26 30 21) 29 5 22 20) 18 27 26 25 9 15)`
+
+Breaking it down:
+
+1. `(SM 6 13 15 21)` → `5`
+2. `(MIN 5 27 9 8 21)` → `5`
+3. `(SM 5 9 14 28 11 2 10 1)` → `0`
+4. `(SM 0 13 30 30 14)` → `7`
+5. `(MIN 7 23 14 20 5 12)` → `5`
+6. Now, `(AVG (MIN ...) 23 14 20 5 12)` is `(AVG 5 23 14 20 5 12)`
+   - Numbers: 5, 23, 14, 20, 5, 12
+   - Sum: 5 + 23 + 14 + 20 + 5 + 12 = 79
+   - Count: 6
+   - AVG: 79 / 6 ≈ 13.166..., floor to `13`
+   - Result: `13`
+7. Now, `(AVG 13 27 26 30 21)`
+   - Numbers: 13, 27, 26, 30, 21
+   - Sum: 13 + 27 + 26 + 30 + 21 = 117
+   - Count: 5
+   - AVG: 117 / 5 = 23.4, floor to `23`
+   - Result: `23`
+8. Now, `(MED 23 29 5 22 20)`
+   - First, sort the numbers: [5, 20, 22, 23, 29]
+   - Odd count (5), so median is the middle: `22`
+   - Result: `22`
+9. Finally, `(AVG 22 18 27 26 25 9 15)`
+   - Numbers: 22, 18, 27, 26, 25, 9, 15
+   - Sum: 22 + 18 + 27 + 26 + 25 + 9 + 15 = 142
+   - Count: 7
+   - AVG: 142 / 7 ≈ 20.285..., floor to `20`
+   - Final Result: `20`
+
+### Final Answer:
+`20`
+Parsed Answer: 20 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 19
+Parsed Answer: 19 (✓ vs Ground Truth, ✗ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: ## Step 1: Evaluate the innermost expression (SM 6 13 15 21)
+First, we sum the numbers: 6 + 13 + 15 + 21 = 55. Then, we take the result modulo 10: 55 % 10 = 5.
+
+## Step 2: Evaluate (MIN (SM 6 13 15 21) 27 9 8 21)
+We found (SM 6 13 15 21) = 5. So, (MIN 5 27 9 8 21) = 5.
+
+## Step 3: Evaluate (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1)
+We found (MIN 5 27 9 8 21) = 5. So, we sum 5 + 9 + 14 + 28 + 11 + 2 + 10 + 1 = 80. Then, 80 % 10 = 0.
+
+## Step 4: Evaluate (MIN (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14)
+We found (SM 5 9 14 28 11 2 10 1) = 0. So, (MIN 0 13 30 30 14) = 0.
+
+## Step 5: Evaluate (AVG (MIN (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14) 23 14 20 5 12)
+We found (MIN 0 13 30 30 14) = 0. So, we average 0 + 23 + 14 + 20 + 5 + 12 = 74. There are 6 numbers, so 74 / 6 = 12.33, which rounds down to 12.
+
+## Step 6: Evaluate (MED (AVG (MIN (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14) 23 14 20 5 12) 27 26 30 21)
+We found (AVG 0 23 14 20 5 12) = 12. So, the numbers are 12, 27, 26, 30, 21. Sorting them gives [12, 21, 26, 27, 30]. The median is 26.
+
+## Step 7: Evaluate (AVG (MED (AVG (MIN (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14) 23 14 20 5 12) 27 26 30 21) 29 5 22 20)
+We found (MED 12 27 26 30 21) = 26. So, the numbers are 26, 29, 5, 22, 20. Summing them gives 26 + 29 + 5 + 22 + 20 = 102. There are 5 numbers, so 102 / 5 = 20.4, which rounds down to 20.
+
+## Step 8: Evaluate (AVG (AVG (MED (AVG (MIN (SM (MIN (SM 6 13 15 21) 27 9 8 21) 9 14 28 11 2 10 1) 13 30 30 14) 23 14 20 5 12) 27 26 30 21) 29 5 22 20) 18 27 26 25 9 15)
+We found (AVG 26 29 5 22 20) = 20. So, the numbers are 20, 18, 27, 26, 25, 9, 15. Summing them gives 20 + 18 + 27 + 26 + 25 + 9 + 15 = 140. There are 7 numbers, so 140 / 7 = 20.
+
+The final answer is: $\boxed{20}$
+Parsed Answer: 20 (✓ vs Ground Truth, ✓ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 20:
+Equation: (SM (SM (MIN (MIN (MIN (SUM (SUM (SUM 23 23 18 19 21 14 3 22) 4 6 9 3) 8 5 23 22) 11 14 22 26 3 19 3) 19 17 18 24 21) 13 27 2 22) 11 22 18 15 25 1) 6 22 29 15 19)
+Ground Truth: 5 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 2
+Parsed Answer: 2 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: Alright, let's tackle this complex ListOps equation step by step. I'll start by breaking it down from the innermost parentheses and work my way outwards. Here's the given equation:
+
+```lisp
+(SM (SM (MIN (MIN (MIN (SUM (SUM (SUM 23 23 18 19 21 14 3 22) 4 6 9 3) 8 5 23 22) 11 14 22 26 3 19 3) 19 17 18 24 21) 13 27 2 22) 11 22 18 15 25 1) 6 22 29 15 19)
+```
+
+### Step 1: Innermost SUM
+The innermost expression is `(SUM 23 23 18 19 21 14 3 22)`. Let's calculate this:
+
+23 + 23 = 46  
+46 + 18 = 64  
+64 + 19 = 83  
+83 + 21 = 104  
+104 + 14 = 118  
+118 + 3 = 121  
+121 + 22 = 143
+
+So, `(SUM 23 23 18 19 21 14 3 22) = 143`.
+
+Now, the equation becomes:
+
+```lisp
+(SM (SM (MIN (MIN (MIN (SUM (SUM 143 4 6 9 3) 8 5 23 22) 11 14 22 26 3 19 3) 19 17 18 24 21) 13 27 2 22) 11 22 18 15 25 1) 6 22 29 15 19)
+```
+
+### Step 2: Next SUM
+Now, evaluate `(SUM 143 4 6 9 3)`:
+
+143 + 4 = 147  
+147 + 6 = 153  
+153 + 9 = 162  
+162 + 3 = 165
+
+So, `(SUM 143 4 6 9 3) = 165`.
+
+Now, the equation is:
+
+```lisp
+(SM (SM (MIN (MIN (MIN (SUM 165 8 5 23 22) 11 14 22 26 3 19 3) 19 17 18 24 21) 13 27 2 22) 11 22 18 15 25 1) 6 22 29 15 19)
+```
+
+### Step 3: Next SUM
+Evaluate `(SUM 165 8 5 23 22)`:
+
+165 + 8 = 173  
+173 + 5 = 178  
+178 + 23 = 201  
+201 + 22 = 223
+
+So, `(SUM 165 8 5 23 22) = 223`.
+
+Now, the equation is:
+
+```lisp
+(SM (SM (MIN (MIN (MIN 223 11 14 22 26 3 19 3) 19 17 18 24 21) 13 27 2 22) 11 22 18 15 25 1) 6 22 29 15 19)
+```
+
+### Step 4: First MIN
+Evaluate `(MIN 223 11 14 22 26 3 19 3)`:
+
+The numbers are: 223, 11, 14, 22, 26, 3, 19, 3.  
+The smallest is `3`.
+
+So, `(MIN 223 11 14 22 26 3 19 3) = 3`.
+
+Now, the equation is:
+
+```lisp
+(SM (SM (MIN (MIN 3 19 17 18 24 21) 13 27 2 22) 11 22 18 15 25 1) 6 22 29 15 19)
+```
+
+### Step 5: Next MIN
+Evaluate `(MIN 3 19 17 18 24 21)`:
+
+The numbers are: 3, 19, 17, 18, 24, 21.  
+The smallest is `3`.
+
+So, `(MIN 3 19 17 18 24 21) = 3`.
+
+Now, the equation is:
+
+```lisp
+(SM (SM (MIN 3 13 27 2 22) 11 22 18 15 25 1) 6 22 29 15 19)
+```
+
+### Step 6: Next MIN
+Evaluate `(MIN 3 13 27 2 22)`:
+
+The numbers are: 3, 13, 27, 2, 22.  
+The smallest is `2`.
+
+So, `(MIN 3 13 27 2 22) = 2`.
+
+Now, the equation is:
+
+```lisp
+(SM (SM 2 11 22 18 15 25 1) 6 22 29 15 19)
+```
+
+### Step 7: First SM
+Evaluate `(SM 2 11 22 18 15 25 1)`:
+
+First, sum the numbers:  
+2 + 11 = 13  
+13 + 22 = 35  
+35 + 18 = 53  
+53 + 15 = 68  
+68 + 25 = 93  
+93 + 1 = 94
+
+Now, take modulo 10 of 94:  
+94 % 10 = 4
+
+So, `(SM 2 11 22 18 15 25 1) = 4`.
+
+Now, the equation is:
+
+```lisp
+(SM 4 6 22 29 15 19)
+```
+
+### Step 8: Final SM
+Evaluate `(SM 4 6 22 29 15 19)`:
+
+First, sum the numbers:  
+4 + 6 = 10  
+10 + 22 = 32  
+32 + 29 = 61  
+61 + 15 = 76  
+76 + 19 = 95
+
+Now, take modulo 10 of 95:  
+95 % 10 = 5
+
+So, `(SM 4 6 22 29 15 19) = 5`.
+
+### Final Answer:
+The final result of the entire expression is `5`.
+
+5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 1
+Parsed Answer: 1 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: ## Step 1: Evaluate the innermost SUM: (SUM 23 23 18 19 21 14 3 22)
+(SUM 23 23 18 19 21 14 3 22) = 23 + 23 + 18 + 19 + 21 + 14 + 3 + 22 = 143.
+
+## Step 2: Evaluate the next SUM: (SUM 143 4 6 9 3)
+(SUM 143 4 6 9 3) = 143 + 4 + 6 + 9 + 3 = 165.
+
+## Step 3: Evaluate the next SUM: (SUM 165 8 5 23 22)
+(SUM 165 8 5 23 22) = 165 + 8 + 5 + 23 + 22 = 223.
+
+## Step 4: Evaluate the MIN: (MIN 223 11 14 22 26 3 19 3)
+First, sort the numbers: [3, 3, 11, 14, 19, 22, 26, 223]. The minimum is 3.
+
+## Step 5: Evaluate the MIN: (MIN 3 19 17 18 24 21)
+First, sort the numbers: [3, 17, 18, 19, 21, 24]. The minimum is 3.
+
+## Step 6: Evaluate the MIN: (MIN 3 13 27 2 22)
+First, sort the numbers: [2, 3, 13, 22, 27]. The minimum is 2.
+
+## Step 7: Evaluate the SM: (SM 2 11 22 18 15 25 1)
+First, sum the numbers: 2 + 11 + 22 + 18 + 15 + 25 + 1 = 94. Then, take the sum modulo 10: 94 % 10 = 4.
+
+## Step 8: Evaluate the SM: (SM 4 6 22 29 15 19)
+First, sum the numbers: 4 + 6 + 22 + 29 + 15 + 19 = 95. Then, take the sum modulo 10: 95 % 10 = 5.
+
+## Step 9: The final result is the outcome of the last SM operation.
+The final answer is: $\boxed{5}$
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 37:
+Equation: (AVG (MED (SM (SM (SM (SM (MIN (SM 29 30 27 3) 23 19 25 10) 29 25 11 21) 27 27 24 4) 6 21 9) 20 30 21 25 20 25 18) 3 5 26 18) 3 12 3)
+Ground Truth: 5 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 8
+Parsed Answer: 8 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 11
+Parsed Answer: 11 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: Alright, let's tackle this complex ListOps equation step by step. I'll start by breaking it down from the innermost parentheses and work my way outwards. Here's the equation again for reference:
+
+```lisp
+(AVG (MED (SM (SM (SM (SM (MIN (SM 29 30 27 3) 23 19 25 10) 29 25 11 21) 27 27 24 4) 6 21 9) 20 30 21 25 20 25 18) 3 5 26 18) 3 12 3)
+```
+
+### Step 1: Innermost SM operation
+The innermost operation is `(SM 29 30 27 3)`.
+
+- **SM**: Sum modulo 10.
+- Sum: 29 + 30 + 27 + 3 = 89
+- 89 mod 10 = 9
+- Result: `9`
+
+Now, the equation becomes:
+```lisp
+(AVG (MED (SM (SM (SM (SM (MIN 9 23 19 25 10) 29 25 11 21) 27 27 24 4) 6 21 9) 20 30 21 25 20 25 18) 3 5 26 18) 3 12 3)
+```
+
+### Step 2: MIN operation
+Next is `(MIN 9 23 19 25 10)`.
+
+- **MIN**: Find the smallest number.
+- Numbers: 9, 23, 19, 25, 10
+- Minimum is `9`
+- Result: `9`
+
+Equation now:
+```lisp
+(AVG (MED (SM (SM (SM (SM 9 29 25 11 21) 27 27 24 4) 6 21 9) 20 30 21 25 20 25 18) 3 5 26 18) 3 12 3)
+```
+
+### Step 3: First SM operation
+Now, `(SM 9 29 25 11 21)`.
+
+- Sum: 9 + 29 + 25 + 11 + 21 = 95
+- 95 mod 10 = 5
+- Result: `5`
+
+Equation:
+```lisp
+(AVG (MED (SM (SM (SM 5 27 27 24 4) 6 21 9) 20 30 21 25 20 25 18) 3 5 26 18) 3 12 3)
+```
+
+### Step 4: Second SM operation
+Next, `(SM 5 27 27 24 4)`.
+
+- Sum: 5 + 27 + 27 + 24 + 4 = 87
+- 87 mod 10 = 7
+- Result: `7`
+
+Equation:
+```lisp
+(AVG (MED (SM (SM 7 6 21 9) 20 30 21 25 20 25 18) 3 5 26 18) 3 12 3)
+```
+
+### Step 5: Third SM operation
+Now, `(SM 7 6 21 9)`.
+
+- Sum: 7 + 6 + 21 + 9 = 43
+- 43 mod 10 = 3
+- Result: `3`
+
+Equation:
+```lisp
+(AVG (MED (SM 3 20 30 21 25 20 25 18) 3 5 26 18) 3 12 3)
+```
+
+### Step 6: Fourth SM operation
+Next, `(SM 3 20 30 21 25 20 25 18)`.
+
+- Sum: 3 + 20 + 30 + 21 + 25 + 20 + 25 + 18 = 162
+- 162 mod 10 = 2
+- Result: `2`
+
+Equation:
+```lisp
+(AVG (MED 2 3 5 26 18) 3 12 3)
+```
+
+### Step 7: MED operation
+Now, `(MED 2 3 5 26 18)`.
+
+- **MED**: Find the median.
+- First, sort the numbers: [2, 3, 5, 18, 26]
+- Odd number of elements, so median is the middle one: `5`
+- Result: `5`
+
+Equation:
+```lisp
+(AVG 5 3 12 3)
+```
+
+### Step 8: AVG operation
+Finally, `(AVG 5 3 12 3)`.
+
+- **AVG**: Average (mean), rounded down.
+- Sum: 5 + 3 + 12 + 3 = 23
+- Number of elements: 4
+- Average: 23 / 4 = 5.75
+- Floor of 5.75 is `5`
+- Result: `5`
+
+### Final Answer
+After carefully evaluating each step, the final answer is:
+
+**5**
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 8
+Parsed Answer: 8 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: To solve the given problem, we will follow the order of operations as per the ListOps rules.
+
+
+## Step 1
+First, we need to identify the innermost expression: `(SM 29 30 27 3)`. Let's calculate it.
+- `(SM 29 30 27 3)` = (29 + 30 + 27 + 3) % 10 = 89 % 10 = 9.
+
+## Step 2
+Now, we substitute the result back into the equation and look for the next innermost expression: `(MIN (SM 29 30 27 3) 23 19 25 10)` = `(MIN 9 23 19 25 10)`.
+- `(MIN 9 23 19 25 10)` = 9.
+
+## Step 3
+Substitute the result back into the equation: `(SM (MIN (SM 29 30 27 3) 23 19 25 10) 29 25 11 21)` = `(SM 9 29 25 11 21)`.
+- `(SM 9 29 25 11 21)` = (9 + 29 + 25 + 11 + 21) % 10 = 95 % 10 = 5.
+
+## Step 4
+Substitute the result back into the equation: `(SM (SM (MIN (SM 29 30 27 3) 23 19 25 10) 29 25 11 21) 27 27 24 4)` = `(SM 5 27 27 24 4)`.
+- `(SM 5 27 27 24 4)` = (5 + 27 + 27 + 24 + 4) % 10 = 87 % 10 = 7.
+
+## Step 5
+Substitute the result back into the equation: `(SM (SM (SM (MIN (SM 29 30 27 3) 23 19 25 10) 29 25 11 21) 27 27 24 4) 6 21 9)` = `(SM 7 6 21 9)`.
+- `(SM 7 6 21 9)` = (7 + 6 + 21 + 9) % 10 = 43 % 10 = 3.
+
+## Step 6
+Substitute the result back into the equation: `(MED (SM (SM (SM (SM (MIN (SM 29 30 27 3) 23 19 25 10) 29 25 11 21) 27 27 24 4) 6 21 9) 20 30 21 25 20 25 18)` = `(MED 3 20 30 21 25 20 25 18)`.
+- First, sort the numbers: [3, 18, 20, 20, 21, 25, 25, 30].
+- Since there are 8 numbers (even count), the median is the average of the 4th and 5th numbers: (20 + 21) / 2 = 41 / 2 = 20.5, rounded down to 20.
+
+## Step 7
+Substitute the result back into the equation: `(AVG (MED (SM (SM (SM (SM (MIN (SM 29 30 27 3) 23 19 25 10) 29 25 11 21) 27 27 24 4) 6 21 9) 20 30 21 25 20 25 18) 3 5 26 18)` = `(AVG 20 3 5 26 18)`.
+- `(AVG 20 3 5 26 18)` = (20 + 3 + 5 + 26 + 18) / 5 = 72 / 5 = 14.4, rounded down to 14.
+
+## Step 8
+Substitute the result back into the equation: `(AVG (AVG (MED (SM (SM (SM (SM (MIN (SM 29 30 27 3) 23 19 25 10) 29 25 11 21) 27 27 24 4) 6 21 9) 20 30 21 25 20 25 18) 3 5 26 18) 3 12 3)` = `(AVG 14 3 12 3)`.
+- `(AVG 14 3 12 3)` = (14 + 3 + 12 + 3) / 4 = 32 / 4 = 8.
+
+The final answer is: $\boxed{8}$
+Parsed Answer: 8 (✗ vs Ground Truth, ✗ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 47:
+Equation: (MED (SM (MAX (SM (SUM (AVG (SUM (MIN 4 2 15 15) 6 11 23 15 14 17 28) 30 29 3 22) 23 7 3 5 20) 23 25 1 19) 8 16 27 21 11 11) 10 2 28 6 27) 21 5 3 28 4 27)
+Ground Truth: 5 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 13
+Parsed Answer: 13 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: Let's break this down systematically, evaluating the innermost expressions first and working our way outward.
+
+1. `(MIN 4 2 15 15)` → 2
+2. `(SUM 2 6 11 23 15 14 17 28)` → 2 + 6 + 11 + 23 + 15 + 14 + 17 + 28 = 116
+3. `(AVG 116 30 29 3 22)` → (116 + 30 + 29 + 3 + 22) / 5 = 200 / 5 = 40
+4. `(SUM 40 23 7 3 5 20)` → 40 + 23 + 7 + 3 + 5 + 20 = 98
+5. `(SM 98 23 25 1 19)` → (98 + 23 + 25 + 1 + 19) % 10 = 166 % 10 = 6
+6. `(MAX 6 8 16 27 21 11 11)` → 27
+7. `(SM 27 10 2 28 6 27)` → (27 + 10 + 2 + 28 + 6 + 27) % 10 = 100 % 10 = 0
+8. Now the expression is `(MED 0 21 5 3 28 4 27)`
+   - Sorted list: [0, 3, 4, 5, 21, 27, 28]
+   - Median (middle value) = 5
+
+Final answer: 5
+Parsed Answer: 5 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 10
+Parsed Answer: 10 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: ## Step 1: Evaluate the innermost expression `(MIN 4 2 15 15)`
+The minimum value among 4, 2, 15, 15 is 2.
+
+## Step 2: Evaluate `(SUM 2 6 11 23 15 14 17 28)`
+Sum = 2 + 6 + 11 + 23 + 15 + 14 + 17 + 28 = 116.
+
+## Step 3: Evaluate `(AVG 116 30 29 3 22)`
+First, sum the numbers: 116 + 30 + 29 + 3 + 22 = 200. Then, count the numbers: there are 5 numbers. AVG = 200 / 5 = 40.
+
+## Step 4: Evaluate `(SUM 40 23 7 3 5 20)`
+Sum = 40 + 23 + 7 + 3 + 5 + 20 = 98.
+
+## Step 5: Evaluate `(SM 98 23 25 1 19)`
+First, sum the numbers: 98 + 23 + 25 + 1 + 19 = 166. Then, take the sum modulo 10: 166 % 10 = 6.
+
+## Step 6: Evaluate `(MAX 6 8 16 27 21 11 11)`
+The maximum value among 6, 8, 16, 27, 21, 11, 11 is 27.
+
+## Step 7: Evaluate `(SM 27 8 16 27 21 11 11)`
+First, sum the numbers: 27 + 8 + 16 + 27 + 21 + 11 + 11 = 121. Then, take the sum modulo 10: 121 % 10 = 1.
+
+## Step 8: Evaluate `(MED 1 10 2 28 6 27)`
+First, sort the numbers: 1, 2, 6, 10, 27, 28. Since there are 6 numbers (even count), the median is the average of the 3rd and 4th numbers: (6 + 10) / 2 = 8.
+
+## Step 9: Evaluate `(MED 8 21 5 3 28 4 27)`
+First, sort the numbers: 3, 4, 5, 8, 21, 27, 28. Since there are 7 numbers (odd count), the median is the 4th number: 8.
+
+The final answer is: $\boxed{8}$
+Parsed Answer: 8 (✗ vs Ground Truth, ✗ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 66:
+Equation: (AVG (MAX (AVG (SM (MED (SUM (SM (MED 20 29 12 16 3 23 19) 6 7 8 12 8 24 29) 6 8 13 5 23 13) 4 15 7 24 21 30) 13 5 9 18 28) 10 12 11 9 23) 16 25 27 10) 22 18 19 16 13 20)
+Ground Truth: 19 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 19
+Parsed Answer: 19 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 19
+Parsed Answer: 19 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 19
+Parsed Answer: 19 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 18
+Parsed Answer: 18 (✓ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 19
+Parsed Answer: 19 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 19
+Parsed Answer: 19 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 19
+Parsed Answer: 19 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: 
+Parsed Answer: None (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 17
+Parsed Answer: 17 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: ## Step 1: Evaluate the innermost expression `(MED 20 29 12 16 3 23 19)`
+First, sort the numbers: `[3, 12, 16, 19, 20, 23, 29]`. Since there are 7 numbers (an odd count), the median is the middle value, which is the 4th number: `19`.
+
+## Step 2: Evaluate `(SM 19 6 7 8 12 8 24 29)`
+First, sum the numbers: `19 + 6 + 7 + 8 + 12 + 8 + 24 + 29 = 113`. Then, take the sum modulo 10: `113 % 10 = 3`.
+
+## Step 3: Evaluate `(SUM 3 6 8 13 5 23 13)`
+Sum the numbers: `3 + 6 + 8 + 13 + 5 + 23 + 13 = 71`.
+
+## Step 4: Evaluate `(MED 71 4 15 7 24 21 30)`
+First, sort the numbers: `[4, 7, 15, 21, 24, 30, 71]`. Since there are 7 numbers (an odd count), the median is the middle value, which is the 4th number: `21`.
+
+## Step 5: Evaluate `(SM 21 6 8 13 5 23 13)`
+First, sum the numbers: `21 + 6 + 8 + 13 + 5 + 23 + 13 = 89`. Then, take the sum modulo 10: `89 % 10 = 9`.
+
+## Step 6: Evaluate `(AVG 9 4 15 7 24 21 30)`
+First, sum the numbers: `9 + 4 + 15 + 7 + 24 + 21 + 30 = 110`. Then, divide by the count of numbers (7) and round down: `110 / 7 = 15.71`, rounded down is `15`.
+
+## Step 7: Evaluate `(MAX 15 13 5 9 18 28)`
+Find the maximum: `max(15, 13, 5, 9, 18, 28) = 28`.
+
+## Step 8: Evaluate `(AVG 28 10 12 11 9 23)`
+First, sum the numbers: `28 + 10 + 12 + 11 + 9 + 23 = 93`. Then, divide by the count of numbers (6) and round down: `93 / 6 = 15.5`, rounded down is `15`.
+
+## Step 9: Evaluate `(MAX 15 16 25 27 10)`
+Find the maximum: `max(15, 16, 25, 27, 10) = 27`.
+
+## Step 10: Evaluate `(AVG 27 22 18 19 16 13 20)`
+First, sum the numbers: `27 + 22 + 18 + 19 + 16 + 13 + 20 = 135`. Then, divide by the count of numbers (7) and round down: `135 / 7 = 19.29`, rounded down is `19`.
+
+The final answer is: $\boxed{19}$
+Parsed Answer: 19 (✓ vs Ground Truth, ✓ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 78:
+Equation: (MIN (MAX (AVG (AVG (MIN (SUM (SUM (SM 8 11 22 15) 17 20 15 22 30) 26 3 10 21 17 30 17) 7 29 8 9 12 8 28) 23 26 11 27 11 14 7) 14 16 3 27) 9 7 16 29) 11 17 4 16 7)
+Ground Truth: 4 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 4
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 4
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 4
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 4
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 4
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 
+Parsed Answer: None (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 4
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: Let's break this down systematically from the innermost parentheses outward:
+
+1. `(SM 8 11 22 15)` = (8+11+22+15) % 10 = 56 % 10 = 6
+2. `(SUM 6 17 20 15 22 30)` = 6+17+20+15+22+30 = 110
+3. `(SUM 110 26 3 10 21 17 30 17)` = 110+26+3+10+21+17+30+17 = 234
+4. `(MIN 234 7 29 8 9 12 8 28)` = 7
+5. `(AVG 7 23 26 11 27 11 14 7)` = (7+23+26+11+27+11+14+7)/8 = 126/8 = 15.75 → 15 (floor)
+6. `(AVG 15 14 16 3 27)` = (15+14+16+3+27)/5 = 75/5 = 15
+7. `(MAX 15 9 7 16 29)` = 29
+8. `(MIN 29 11 17 4 16 7)` = 4
+
+Final answer: 4
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 4
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: To solve the given problem, we will follow the order of operations as per the ListOps rules.
+
+
+## Step 1: Evaluate the innermost expression (SM 8 11 22 15)
+First, we calculate the sum: 8 + 11 + 22 + 15 = 56. Then, we take this sum modulo 10: 56 % 10 = 6.
+
+## Step 2: Evaluate (SUM 6 17 20 15 22 30)
+Calculate the sum: 6 + 17 + 20 + 15 + 22 + 30 = 110.
+
+## Step 3: Evaluate (SUM 110 26 3 10 21 17 30 17)
+Calculate the sum: 110 + 26 + 3 + 10 + 21 + 17 + 30 + 17 = 234.
+
+## Step 4: Evaluate (MIN 234 7 29 8 9 12 8 28)
+Find the minimum: min(234, 7, 29, 8, 9, 12, 8, 28) = 7.
+
+## Step 5: Evaluate (AVG 7 23 26 11 27 11 14 7)
+First, calculate the sum: 7 + 23 + 26 + 11 + 27 + 11 + 14 + 7 = 126. Then, divide by the count of numbers (8) and round down: 126 / 8 = 15.75, rounded down = 15.
+
+## Step 6: Evaluate (AVG 15 14 16 3 27)
+First, calculate the sum: 15 + 14 + 16 + 3 + 27 = 75. Then, divide by the count of numbers (5) and round down: 75 / 5 = 15.
+
+## Step 7: Evaluate (MAX 15 9 7 16 29)
+Find the maximum: max(15, 9, 7, 16, 29) = 29.
+
+## Step 8: Evaluate (MIN 29 11 17 4 16 7)
+Find the minimum: min(29, 11, 17, 4, 16, 7) = 4.
+
+## Step 9: Combine the results to get the final answer
+Now, we have (MIN (MAX 15 29) 4). First, evaluate (MAX 15 29) = 29. Then, (MIN 29 4) = 4.
+
+
+The final answer is: $\boxed{4}$
+Parsed Answer: 4 (✓ vs Ground Truth, ✓ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 82:
+Equation: (MIN (AVG (SUM (AVG (MIN (MIN (MAX (MED 13 16 14 26 19) 11 22 21 13) 19 27 4 17) 8 19 6) 4 27 27 2) 16 15 25 27 21) 12 8 13 19) 18 9 18)
+Ground Truth: 9 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 8
+Parsed Answer: 8 (✓ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 8
+Parsed Answer: 8 (✓ vs Ground Truth, ✗ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: 10
+Parsed Answer: 10 (✓ vs Ground Truth, ✗ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 8
+Parsed Answer: 8 (✓ vs Ground Truth, ✗ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: ## Step 1: Evaluate the innermost expression (MED 13 16 14 26 19)
+First, we sort the numbers: 13, 14, 16, 19, 26. Since there are 5 numbers (an odd count), the median is the middle number, which is 16.
+
+## Step 2: Evaluate (MAX (MED 13 16 14 26 19) 11 22 21 13)
+Now we have (MAX 16 11 22 21 13). The maximum of these numbers is 22.
+
+## Step 3: Evaluate (MIN (MAX (MED 13 16 14 26 19) 11 22 21 13) 19 27 4 17)
+Now we have (MIN 22 19 27 4 17). The minimum of these numbers is 4.
+
+## Step 4: Evaluate (MIN (MIN (MAX (MED 13 16 14 26 19) 11 22 21 13) 19 27 4 17) 8 19 6)
+Now we have (MIN 4 8 19 6). The minimum of these numbers is 4.
+
+## Step 5: Evaluate (AVG (MIN (MIN (MAX (MED 13 16 14 26 19) 11 22 21 13) 19 27 4 17) 8 19 6) 4 27 27 2)
+Now we have (AVG 4 4 27 27 2). First, we calculate the average: (4 + 4 + 27 + 27 + 2) / 5 = 64 / 5 = 12.8, which rounds down to 12.
+
+## Step 6: Evaluate (SUM (AVG (MIN (MIN (MAX (MED 13 16 14 26 19) 11 22 21 13) 19 27 4 17) 8 19 6) 4 27 27 2) 16 15 25 27 21)
+Now we have (SUM 12 16 15 25 27 21). The sum is 12 + 16 + 15 + 25 + 27 + 21 = 116.
+
+## Step 7: Evaluate (AVG (SUM (AVG (MIN (MIN (MAX (MED 13 16 14 26 19) 11 22 21 13) 19 27 4 17) 8 19 6) 4 27 27 2) 16 15 25 27 21) 12 8 13 19)
+Now we have (AVG 116 12 8 13 19). First, we calculate the sum: 116 + 12 + 8 + 13 + 19 = 168. Then, we calculate the average: 168 / 5 = 33.6, which rounds down to 33.
+
+## Step 8: Evaluate (MIN (AVG (SUM (AVG (MIN (MIN (MAX (MED 13 16 14 26 19) 11 22 21 13) 19 27 4 17) 8 19 6) 4 27 27 2) 16 15 25 27 21) 12 8 13 19) 18 9 18)
+Now we have (MIN 33 18 9 18). The minimum of these numbers is 9.
+
+The final answer is: $\boxed{9}$
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+--------------------------------------------------------------------------------
+
+Sample 95:
+Equation: (MED (SM (MAX (MIN (AVG (SUM (SUM (AVG 13 3 29 25 16 21 12) 22 29 10) 10 20 7 23 22 16) 20 1 16 7 6 22) 23 14 24 7 16 24) 5 28 1 11) 19 6 18 2 2 5 9) 22 2 19 3)
+Ground Truth: 9 (✓ Verified)
+
+Model 1 (Gemini 2.5 Pro):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 2 (Gemini 2.5 Flash Thinking):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 3 (o4 Mini High):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 4 (GPT-4.1):
+Raw Response: 11
+Parsed Answer: 11 (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 5 (Grok 3 Mini High):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 6 (Qwen3 235B A22B):
+Raw Response: 
+Parsed Answer: None (✗ vs Ground Truth, ✗ vs Computed)
+
+Model 7 (DeepSeek R1):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 8 (DeepSeek V3 0324):
+Raw Response: Let's break this down systematically, evaluating the innermost expressions first and working our way outward.
+
+1. `(AVG 13 3 29 25 16 21 12)`
+   - Sum: 13 + 3 + 29 + 25 + 16 + 21 + 12 = 119
+   - Count: 7
+   - AVG: 119 / 7 = 17
+
+2. `(SUM 17 22 29 10)`
+   - SUM: 17 + 22 + 29 + 10 = 78
+
+3. `(SUM 78 10 20 7 23 22 16)`
+   - SUM: 78 + 10 + 20 + 7 + 23 + 22 + 16 = 176
+
+4. `(AVG 176 20 1 16 7 6 22)`
+   - Sum: 176 + 20 + 1 + 16 + 7 + 6 + 22 = 248
+   - Count: 7
+   - AVG: 248 / 7 = 35 (floor division)
+
+5. `(MIN 35 23 14 24 7 16 24)`
+   - MIN: 7
+
+6. `(MAX 7 5 28 1 11)`
+   - MAX: 28
+
+7. `(SM 28 19 6 18 2 2 5 9)`
+   - Sum: 28 + 19 + 6 + 18 + 2 + 2 + 5 + 9 = 89
+   - SM: 89 % 10 = 9
+
+8. `(MED 9 22 2 19 3)`
+   - Sorted: [2, 3, 9, 19, 22]
+   - MED: middle value = 9
+
+Final answer: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 9 (Claude 3.7 Sonnet):
+Raw Response: 9
+Parsed Answer: 9 (✓ vs Ground Truth, ✓ vs Computed)
+
+Model 10 (Llama 4 Maverick):
+Raw Response: ## Step 1: Evaluate the innermost expression `(AVG 13 3 29 25 16 21 12)`
+First, we sum the numbers: 13 + 3 + 29 + 25 + 16 + 21 + 12 = 119. Then, we divide by the count of numbers, which is 7. So, 119 / 7 = 17.
+
+## Step 2: Evaluate `(SUM 17 22 29 10)`
+Sum the numbers: 17 + 22 + 29 + 10 = 78.
+
+## Step 3: Evaluate `(AVG 78 10 20 7 23 22 16)`
+First, sum the numbers: 78 + 10 + 20 + 7 + 23 + 22 + 16 = 176. Then, divide by the count of numbers, which is 7. So, 176 / 7 = 25.14, which rounds down to 25.
+
+## Step 4: Evaluate `(MIN 25 20 1 16 7 6 22)`
+Find the minimum: min(25, 20, 1, 16, 7, 6, 22) = 1.
+
+## Step 5: Evaluate `(MAX 1 23 14 24 7 16 24)`
+Find the maximum: max(1, 23, 14, 24, 7, 16, 24) = 24.
+
+## Step 6: Evaluate `(SM 24 5 28 1 11)`
+First, sum the numbers: 24 + 5 + 28 + 1 + 11 = 69. Then, take the sum modulo 10: 69 % 10 = 9.
+
+## Step 7: Evaluate `(MED 9 19 6 18 2 2 5 9)`
+First, sort the numbers: [2, 2, 5, 6, 9, 9, 18, 19]. Since there are 8 numbers (an even count), the median is the average of the 4th and 5th numbers: (6 + 9) / 2 = 7.5, which rounds down to 7.
+
+## Step 8: Evaluate `(MED 7 22 2 19 3)`
+First, sort the numbers: [2, 3, 7, 19, 22]. The median is the middle number, which is 7.
+
+## Step 9: Final evaluation
+We have `(MED 7 22 2 19 3)` = 7. So, the final expression simplifies to a single number, which is 7.
+
+The final answer is: $\boxed{7}$
+Parsed Answer: 7 (✗ vs Ground Truth, ✗ vs Computed)
+
+--------------------------------------------------------------------------------
+

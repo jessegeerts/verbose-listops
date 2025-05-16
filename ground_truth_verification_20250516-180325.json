@@ -1,0 +1,62 @@
+{
+  "78": {
+    "original_ground_truth": 4,
+    "is_verified": true,
+    "computed_value": 4,
+    "explanation": "Ground truth verified"
+  },
+  "82": {
+    "original_ground_truth": 9,
+    "is_verified": true,
+    "computed_value": 9,
+    "explanation": "Ground truth verified"
+  },
+  "47": {
+    "original_ground_truth": 5,
+    "is_verified": true,
+    "computed_value": 5,
+    "explanation": "Ground truth verified"
+  },
+  "12": {
+    "original_ground_truth": 20,
+    "is_verified": true,
+    "computed_value": 20,
+    "explanation": "Ground truth verified"
+  },
+  "66": {
+    "original_ground_truth": 19,
+    "is_verified": true,
+    "computed_value": 19,
+    "explanation": "Ground truth verified"
+  },
+  "20": {
+    "original_ground_truth": 5,
+    "is_verified": true,
+    "computed_value": 5,
+    "explanation": "Ground truth verified"
+  },
+  "37": {
+    "original_ground_truth": 5,
+    "is_verified": true,
+    "computed_value": 5,
+    "explanation": "Ground truth verified"
+  },
+  "4": {
+    "original_ground_truth": 115,
+    "is_verified": true,
+    "computed_value": 115,
+    "explanation": "Ground truth verified"
+  },
+  "95": {
+    "original_ground_truth": 9,
+    "is_verified": true,
+    "computed_value": 9,
+    "explanation": "Ground truth verified"
+  },
+  "5": {
+    "original_ground_truth": 74,
+    "is_verified": true,
+    "computed_value": 74,
+    "explanation": "Ground truth verified"
+  }
+}

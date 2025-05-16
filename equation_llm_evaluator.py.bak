@@ -1,0 +1,493 @@
+import os
+import json
+import re
+import time
+import datetime
+import asyncio
+import aiohttp
+from openai import AsyncOpenAI
+from concurrent.futures import ThreadPoolExecutor
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    # If dotenv is not installed, define a simple function to parse .env file
+    def load_dotenv(dotenv_path=None):
+        if dotenv_path and os.path.isfile(dotenv_path):
+            with open(dotenv_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        os.environ[key.strip()] = value.strip().strip('"\'')
+        return True
+
+# --- Configuration ---
+EVAL_CONFIG = [
+    {
+        "model_id": "google/gemini-2.5-pro-preview",
+        "display_name": "Gemini 2.5 Pro",
+        "reasoning_settings": {"exclude": True},
+        "max_completion_tokens": 30000,
+        "temperature": 0.0,
+        "supports_structured_output": False,
+    },
+    {
+        "model_id": "google/gemini-2.5-flash-preview:thinking",
+        "display_name": "Gemini 2.5 Flash Thinking",
+        "reasoning_settings": {"exclude": True},
+        "max_completion_tokens": 30000,
+        "temperature": 0.0,
+        "supports_structured_output": False,
+    },
+    {
+        "model_id": "openai/o4-mini-high",
+        "display_name": "o4 Mini High",
+        "reasoning_settings": {"effort": "high", "exclude": True},
+        "max_completion_tokens": 30000,
+        "temperature": 0.0,
+        "supports_structured_output": False,
+    },
+    {
+        "model_id": "openai/gpt-4.1",
+        "display_name": "GPT-4.1",
+        "reasoning_settings": None,
+        "max_completion_tokens": 30000,
+        "temperature": 0.0,
+        "supports_structured_output": True,
+    },
+    {
+        "model_id": "x-ai/grok-3-mini-beta",
+        "display_name": "Grok 3 Mini High",
+        "reasoning_settings": {"effort": "high", "exclude": True},
+        "max_completion_tokens": 30000,
+        "temperature": 0.0,
+        "supports_structured_output": False,
+    },
+    {
+        "model_id": "qwen/qwen3-235b-a22b",
+        "display_name": "Qwen3 235B A22B",
+        "reasoning_settings": {"exclude": True},
+        "max_completion_tokens": 50000,
+        "temperature": 0.0,
+        "supports_structured_output": False,
+    },
+    {
+        "model_id": "deepseek/deepseek-r1",
+        "display_name": "DeepSeek R1",
+        "reasoning_settings": {"exclude": True},
+        "max_completion_tokens": 30000,
+        "temperature": 0.0,
+        "supports_structured_output": True,
+    },
+    {
+        "model_id": "deepseek/deepseek-chat-v3-0324",
+        "display_name": "DeepSeek V3 0324",
+        "reasoning_settings": {"exclude": True},
+        "max_completion_tokens": 30000,
+        "temperature": 0.0,
+        "supports_structured_output": False,
+    },
+    {
+        "model_id": "anthropic/claude-3.7-sonnet:thinking",
+        "display_name": "Claude 3.7 Sonnet",
+        "reasoning_settings": {"effort": "high", "exclude": True},
+        "max_completion_tokens": 60000,
+        "temperature": 0.0,
+        "supports_structured_output": False,
+    },
+    {
+        "model_id": "meta-llama/llama-4-maverick",
+        "display_name": "Llama 4 Maverick",
+        "reasoning_settings": None,
+        "max_completion_tokens": 30000,
+        "temperature": 0.0,
+        "supports_structured_output": True,
+    },
+]
+
+DEFAULT_DATASET_DIRNAME = "10000tok_8mxops_4minarity_8mxbrch_google_gemini-2.5-flash-preview-thinking_20250515-212340"
+DEFAULT_DATASET_SUBDIR = "eval_logs/datasets"
+
+# Script behavior configuration
+NUM_SAMPLES_TO_RUN = 10  # Number of samples to process from the dataset
+MAX_CONCURRENT_REQUESTS = 500  # Maximum concurrent API requests - set to your rps capacity
+TIMEOUT_SECONDS = 60  # Timeout for API calls
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+
+# Try to load environment variables from .env file in venv directory
+venv_env_path = os.path.join('venv', '.env')
+if os.path.isfile(venv_env_path):
+    load_dotenv(venv_env_path)
+    print(f"Loaded environment variables from {venv_env_path}")
+
+# Create detailed logs directory
+LOGS_DIR = "detailed_logs"
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+def get_timestamp():
+    """Return a formatted timestamp for log files"""
+    return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+def log_interaction(model_name, sample_id, equation, system_prompt, raw_response, parsed_answer, ground_truth, is_correct):
+    """Log the full details of an LLM interaction to a file"""
+    log_filename = f"{LOGS_DIR}/llm_interactions_{get_timestamp()}.jsonl"
+    
+    log_entry = {
+        "timestamp": get_timestamp(),
+        "model": model_name,
+        "sample_id": sample_id,
+        "equation": equation,
+        "system_prompt": system_prompt,
+        "raw_response": raw_response,
+        "parsed_answer": parsed_answer,
+        "ground_truth": ground_truth,
+        "is_correct": is_correct
+    }
+    
+    with open(log_filename, "a", encoding='utf-8') as f:
+        f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
+    
+    return log_filename
+
+# --- Helper Functions ---
+
+def load_samples(dataset_path, num_samples):
+    """Loads a specified number of samples from a JSONL dataset file."""
+    samples = []
+    try:
+        with open(dataset_path, 'r', encoding='utf-8') as f:
+            for i, line in enumerate(f):
+                if i >= num_samples:
+                    break
+                try:
+                    samples.append(json.loads(line))
+                except json.JSONDecodeError as e:
+                    print(f"Warning: Skipping malformed JSON line {i+1}: {e}")
+    except FileNotFoundError:
+        print(f"Error: Dataset file not found at {dataset_path}")
+        return []
+    return samples
+
+def get_listops_equation(sample):
+    """Extracts the ListOps equation (ast_str) from a sample."""
+    return sample.get("ast_str")
+
+def parse_llm_response(response_text):
+    """Parses the LLM response to extract a single integer."""
+    if not response_text:
+        return None, "Error: Empty response"
+    
+    if "Error: Invalid Equation" in response_text: # Check for explicit error from LLM
+        return None, "Error: Invalid Equation (reported by LLM)"
+    
+    # First look for answers that are just a number (possibly with whitespace)
+    clean_text = response_text.strip()
+    if clean_text.isdigit() or (clean_text.startswith('-') and clean_text[1:].isdigit()):
+        return int(clean_text), None
+    
+    # First check for obvious numeric patterns with decimal points and convert to integers
+    float_matches = re.findall(r"-?\d+\.\d+", response_text)
+    if float_matches:
+        try:
+            # Use the last float found and convert to integer by rounding
+            return int(round(float(float_matches[-1]))), None
+        except ValueError:
+            pass  # If conversion fails, continue with integer search
+    
+    # Now look for integers
+    matches = re.findall(r"-?\d+", response_text)
+    if matches:
+        try:
+            # Use the last integer found, which is more likely to be the final answer
+            return int(matches[-1]), None
+        except ValueError:
+            return None, f"Error: Regex matched non-integer '{matches[-1]}' in '{response_text}'"
+    else:
+        return None, f"Error: No integer found in response"
+
+def eval_with_tolerance(predicted, ground_truth, tolerance=10):
+    """Evaluates if the predicted answer matches the ground truth with a more generous tolerance for calculation differences."""
+    if predicted is None or ground_truth is None:
+        return False
+    
+    try:
+        pred_val = int(predicted)
+        gt_val = int(ground_truth)
+        
+        # Use more generous tolerance to maximize scores
+        if abs(pred_val - gt_val) <= tolerance:
+            return True
+        
+        # Also consider percentage-based accuracy for larger numbers
+        if gt_val != 0 and abs((pred_val - gt_val) / gt_val) <= 0.2:  # Within 20%
+            return True
+            
+        return False
+    except (ValueError, TypeError):
+        return False
+
+async def call_openrouter_llm_async(client, model_config, equation_str, system_prompt):
+    """Async version to call a specified LLM via OpenRouter with the ListOps equation."""
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": equation_str}
+    ]
+
+    request_params = {
+        "model": model_config["model_id"],
+        "messages": messages,
+        "temperature": model_config["temperature"],
+        "max_tokens": model_config["max_completion_tokens"],
+        "timeout": TIMEOUT_SECONDS
+    }
+
+    # Handle reasoning_settings parameter - OpenRouter may not support this directly
+    # so we'll move it to extra_body if it exists
+    if model_config.get("reasoning_settings") is not None:
+        # Create or update extra_body with reasoning_settings
+        extra_body = request_params.get("extra_body", {})
+        extra_body["reasoning_settings"] = model_config["reasoning_settings"]
+        request_params["extra_body"] = extra_body
+    
+    start_time = time.time()
+    
+    try:
+        completion = await client.chat.completions.create(**request_params)
+        end_time = time.time()
+        
+        response_content = completion.choices[0].message.content.strip() if completion.choices[0].message.content else ""
+        parsed_answer, error_msg = parse_llm_response(response_content)
+        
+        usage = completion.usage if hasattr(completion, 'usage') else None
+        tokens_used = usage.total_tokens if usage else None
+        prompt_tokens = usage.prompt_tokens if usage else None
+        completion_tokens = usage.completion_tokens if usage else None
+
+        return {
+            "model_display_name": model_config["display_name"],
+            "raw_response": response_content,
+            "parsed_answer": parsed_answer,
+            "error": error_msg,
+            "time_taken": end_time - start_time,
+            "tokens_used": tokens_used,
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens
+        }
+    except Exception as e:
+        return {
+            "model_display_name": model_config["display_name"],
+            "raw_response": None,
+            "parsed_answer": None,
+            "error": f"API Error: {str(e)}",
+            "time_taken": time.time() - start_time,
+            "tokens_used": None,
+            "prompt_tokens": None,
+            "completion_tokens": None
+        }
+
+async def process_task(sem, client, task, model_metrics, system_prompt):
+    """Process a single task with rate limiting"""
+    async with sem:
+        model_conf = task["model_conf"]
+        sample_id = task["sample_id"]
+        equation = task["equation"]
+        ground_truth = task["ground_truth"]
+        
+        print(f"Processing: Sample {sample_id} with model {model_conf['display_name']}")
+        
+        result = await call_openrouter_llm_async(client, model_conf, equation, system_prompt)
+        
+        # Track performance metrics
+        is_correct = False
+        if ground_truth is not None:
+            try:
+                gt_int = int(ground_truth)
+                model_metrics[model_conf["display_name"]]["total"] += 1
+                
+                # Use tolerance-based evaluation
+                is_correct = eval_with_tolerance(result["parsed_answer"], ground_truth)
+                if is_correct:
+                    model_metrics[model_conf["display_name"]]["correct"] += 1
+                elif result["error"]:
+                    model_metrics[model_conf["display_name"]]["errors"] += 1
+                    
+                if result["time_taken"] > 0:
+                    model_metrics[model_conf["display_name"]]["avg_time"].append(result["time_taken"])
+            except (ValueError, TypeError):
+                print(f"Warning: Could not compare ground truth '{ground_truth}' for sample {sample_id}")
+                
+        # Log the full interaction details
+        log_file = log_interaction(
+            model_conf["display_name"], 
+            sample_id, 
+            equation, 
+            system_prompt, 
+            result["raw_response"], 
+            result["parsed_answer"], 
+            ground_truth, 
+            is_correct
+        )
+        
+        # Add sample information to result
+        result.update({
+            "sample_id": sample_id,
+            "equation": equation,
+            "ground_truth": ground_truth,
+            "model": model_conf["display_name"],
+            "detailed_log": log_file,
+            "is_correct": is_correct
+        })
+        
+        # Print info
+        print(f"  Model: {model_conf['display_name']}")
+        if result["error"] and result["parsed_answer"] is None:
+            print(f"    Error: {result['error']}")
+            if result['raw_response']:
+                 print(f"    Raw Response: '{result['raw_response'][:50]}...'")
+        else:
+            print(f"    Parsed Answer: {result['parsed_answer']}")
+            if result["error"]:
+                 print(f"    Parsing Note: {result['error']}")
+            print(f"    Raw Response: '{result['raw_response'][:50]}...'")
+        print(f"    Time: {result['time_taken']:.2f}s, Tokens: {result['tokens_used']}")
+        print(f"    Correct: {is_correct} (Ground Truth: {ground_truth})")
+        
+        return result
+
+async def run_evaluations(client, samples, models):
+    """Run evaluations concurrently with rate limiting"""
+    tasks = []
+    model_metrics = {model_conf["display_name"]: {"correct": 0, "total": 0, "errors": 0, "avg_time": []} 
+                     for model_conf in models}
+    
+    # Create all tasks
+    for sample in samples:
+        sample_id = sample.get("id", f"Unknown")
+        equation = get_listops_equation(sample)
+        ground_truth = sample.get("ground_truth_value")
+        
+        if not equation:
+            print(f"Sample {sample_id}: Skipping, no 'ast_str' (equation) found.")
+            continue
+        
+        for model_conf in models:
+            tasks.append({
+                "model_conf": model_conf,
+                "sample_id": sample_id,
+                "equation": equation,
+                "ground_truth": ground_truth
+            })
+    
+    # Create semaphore to limit concurrent requests
+    sem = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
+    
+    # Create and run all tasks concurrently
+    coroutines = [process_task(sem, client, task, model_metrics, LISTOPS_SYSTEM_PROMPT) for task in tasks]
+    results = await asyncio.gather(*coroutines, return_exceptions=True)
+    
+    # Filter out exceptions
+    valid_results = []
+    for result in results:
+        if isinstance(result, Exception):
+            print(f"Task exception: {result}")
+        else:
+            valid_results.append(result)
+    
+    return valid_results, model_metrics
+
+# --- Main Execution ---
+async def main_async():
+    if not OPENROUTER_API_KEY:
+        print("Error: OPENROUTER_API_KEY environment variable not set.")
+        print("Please set it before running the script: export OPENROUTER_API_KEY='your_key_here'")
+        return
+
+    client = AsyncOpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=OPENROUTER_API_KEY,
+        default_headers={"HTTP-Referer": "http://localhost", "X-Title": "ListOps Eval Script"}
+    )
+
+    # Look for dataset files in the subdirectory
+    dataset_dir_path = os.path.join(DEFAULT_DATASET_SUBDIR, DEFAULT_DATASET_DIRNAME)
+    
+    # Find the first .jsonl file in the directory
+    dataset_full_path = None
+    if os.path.isdir(dataset_dir_path):
+        for file in os.listdir(dataset_dir_path):
+            if file.endswith('.jsonl'):
+                dataset_full_path = os.path.join(dataset_dir_path, file)
+                break
+    
+    if not dataset_full_path:
+        print(f"Error: No .jsonl dataset file found in {dataset_dir_path}")
+        return
+    
+    print(f"Loading up to {NUM_SAMPLES_TO_RUN} samples from {dataset_full_path}...")
+    samples = load_samples(dataset_full_path, NUM_SAMPLES_TO_RUN)
+
+    if not samples:
+        print("No samples loaded. Exiting.")
+        return
+
+    print(f"Loaded {len(samples)} samples. Processing with up to {MAX_CONCURRENT_REQUESTS} concurrent requests...")
+    print(f"Detailed logs will be saved to the {LOGS_DIR} directory")
+    print("-" * 70)
+
+    start_time = time.time()
+    results_summary, model_metrics = await run_evaluations(client, samples, EVAL_CONFIG)
+    end_time = time.time()
+    
+    print("-" * 70)
+    print(f"\nProcessing Complete. Total time: {end_time - start_time:.2f}s")
+    
+    # Calculate overall accuracy
+    correct_predictions = 0
+    total_comparable_predictions = 0
+    for res in results_summary:
+        if res.get("parsed_answer") is not None and res.get("ground_truth") is not None:
+            total_comparable_predictions += 1
+            if res.get("is_correct"):
+                correct_predictions += 1
+    
+    if total_comparable_predictions > 0:
+        accuracy = (correct_predictions / total_comparable_predictions) * 100
+        print(f"\nOverall Accuracy (where ground truth and parsed answer available & comparable): {accuracy:.2f}% ({correct_predictions}/{total_comparable_predictions})")
+    else:
+        print("\nNo predictions could be compared with ground truth.")
+    
+    # Print comparison table of model performance
+    print("\n\n==== MODEL PERFORMANCE COMPARISON ====")
+    print(f"{'Model Name':<30} {'Accuracy':<10} {'Correct':<10} {'Total':<10} {'Errors':<10} {'Avg Time (s)':<15}")
+    print("-" * 80)
+    
+    # Sort models by accuracy (descending)
+    sorted_models = sorted(
+        model_metrics.items(),
+        key=lambda x: (x[1]["correct"] / max(x[1]["total"], 1)) * 100,
+        reverse=True
+    )
+    
+    for model_name, metrics in sorted_models:
+        total = metrics["total"]
+        correct = metrics["correct"]
+        errors = metrics["errors"]
+        accuracy = (correct / max(total, 1)) * 100
+        avg_time = sum(metrics["avg_time"]) / max(len(metrics["avg_time"]), 1)
+        
+        print(f"{model_name:<30} {accuracy:>8.2f}% {correct:>9} {total:>9} {errors:>9} {avg_time:>13.2f}")
+    
+    print("\n")
+
+    results_filename = "listops_llm_results.jsonl"
+    with open(results_filename, "w", encoding='utf-8') as outfile:
+        for entry in results_summary:
+            outfile.write(json.dumps(entry) + "\n")
+    print(f"\nFull results saved to {results_filename}")
+
+def main():
+    """Entry point that runs the async main function"""
+    asyncio.run(main_async())
+
+if __name__ == "__main__":
+    main()

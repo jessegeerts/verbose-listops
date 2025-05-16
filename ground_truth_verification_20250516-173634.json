@@ -1,0 +1,62 @@
+{
+  "78": {
+    "original_ground_truth": 4,
+    "is_reliable": true,
+    "alternative_answer": null,
+    "confidence": 88.88888888888889
+  },
+  "82": {
+    "original_ground_truth": 9,
+    "is_reliable": true,
+    "alternative_answer": null,
+    "confidence": 80.0
+  },
+  "47": {
+    "original_ground_truth": 5,
+    "is_reliable": false,
+    "alternative_answer": 21,
+    "confidence": 100.0
+  },
+  "12": {
+    "original_ground_truth": 20,
+    "is_reliable": true,
+    "alternative_answer": null,
+    "confidence": 80.0
+  },
+  "66": {
+    "original_ground_truth": 19,
+    "is_reliable": true,
+    "alternative_answer": null,
+    "confidence": 70.0
+  },
+  "20": {
+    "original_ground_truth": 5,
+    "is_reliable": false,
+    "alternative_answer": 185,
+    "confidence": 80.0
+  },
+  "37": {
+    "original_ground_truth": 5,
+    "is_reliable": false,
+    "alternative_answer": 9,
+    "confidence": 80.0
+  },
+  "4": {
+    "original_ground_truth": 115,
+    "is_reliable": true,
+    "alternative_answer": null,
+    "confidence": 60.0
+  },
+  "95": {
+    "original_ground_truth": 9,
+    "is_reliable": false,
+    "alternative_answer": 19,
+    "confidence": 80.0
+  },
+  "5": {
+    "original_ground_truth": 74,
+    "is_reliable": true,
+    "alternative_answer": null,
+    "confidence": 0.0
+  }
+}
