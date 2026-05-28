@@ -33,23 +33,59 @@ import collections
 
 load_dotenv()
 
+# --- Backend selection (added for local fork) -------------------------------
+# `VLO_BACKEND` selects where API calls go. Set in .env or shell:
+#   "openrouter" — original behaviour: OpenAI SDK pointed at openrouter.ai.
+#   "vertex"     — Vertex AI's OpenAI-compatible endpoint. Auth via ADC
+#                  (gcloud auth application-default login) + GCP project from
+#                  GOOGLE_CLOUD_PROJECT. Lets generation costs land on
+#                  GCP credits instead of OpenRouter-billed.
+# Default = "openrouter" to keep the upstream behaviour for anyone else.
+VLO_BACKEND = os.environ.get("VLO_BACKEND", "openrouter").lower()
+
+# Restrict the operator set used by build_random_ast (added for local fork).
+# Default keeps all six upstream ops; set VLO_OPS="MAX,MIN,SUM" to study a
+# subset. Used in build_random_ast in place of the hardcoded ops lists.
+_VLO_OPS = os.environ.get("VLO_OPS", "MAX,MIN,MED,SUM,SM,AVG").split(",")
+# When "1", only narrativise ASTs whose true value differs from every naive
+# shortcut (flat sum/min/max/median, flatten+root-op) — so solving the sample
+# requires respecting the nested structure. Off by default.
+_VLO_SHORTCUT_FILTER = os.environ.get("VLO_SHORTCUT_FILTER", "0") == "1"
+
 # fmt: off
 # --- Batch Settings ---
-NUM_SAMPLES_TO_GENERATE = 150
-DEFAULT_MAX_WORKERS = 100
-MODEL = "google/gemini-2.5-flash-preview:thinking"
-STATIC_CHECKER_MODEL = "google/gemini-2.5-flash-preview:thinking"
+# Defaults overridden by env vars VLO_NUM_SAMPLES / VLO_MODEL for parameterised
+# generation runs (e.g. small depth-2 batches).
+NUM_SAMPLES_TO_GENERATE = int(os.environ.get("VLO_NUM_SAMPLES", "150"))
+# Vertex AI's default Gemini quotas are much tighter than OpenRouter — keep
+# concurrency conservative when running on Vertex to avoid RESOURCE_EXHAUSTED.
+DEFAULT_MAX_WORKERS = int(os.environ.get("VLO_MAX_WORKERS", "100"))
+# Vertex's OpenAI-compat doesn't accept the ":thinking" suffix (OpenRouter-only
+# syntax for forcing thinking mode); use the plain Pro model name there.
+MODEL = os.environ.get(
+    "VLO_MODEL",
+    "google/gemini-2.5-pro" if VLO_BACKEND == "vertex"
+    else "google/gemini-2.5-flash-preview:thinking",
+)
+STATIC_CHECKER_MODEL = os.environ.get(
+    "VLO_STATIC_CHECKER_MODEL",
+    "google/gemini-2.5-flash" if VLO_BACKEND == "vertex"
+    else "google/gemini-2.5-flash-preview:thinking",
+)
 DATASETS_DIR = "datasets"
 PROD_RUN: bool = True
 
 @dataclass
 class Config:
-    MAX_OPS: int = 8
-    MAX_BRANCH: int = 8
-    MIN_ARITY: int = 4
-    MIN_ATOM_VAL: int = 1
-    MAX_ATOM_VAL: int = 30
-    MAX_TOTAL_TOKENS: int = 10000
+    # Defaults overridable via VLO_* env vars (added for local fork).
+    # Originals: MAX_OPS=8, MAX_BRANCH=8, MIN_ARITY=4, atom range 1-30,
+    # MAX_TOTAL_TOKENS=10000 (the released-dataset parameters).
+    MAX_OPS: int = int(os.environ.get("VLO_MAX_OPS", "8"))
+    MAX_BRANCH: int = int(os.environ.get("VLO_MAX_BRANCH", "8"))
+    MIN_ARITY: int = int(os.environ.get("VLO_MIN_ARITY", "4"))
+    MIN_ATOM_VAL: int = int(os.environ.get("VLO_MIN_ATOM_VAL", "1"))
+    MAX_ATOM_VAL: int = int(os.environ.get("VLO_MAX_ATOM_VAL", "30"))
+    MAX_TOTAL_TOKENS: int = int(os.environ.get("VLO_MAX_TOTAL_TOKENS", "10000"))
     EARLY_TERMINATION_PROBABILITY: float = 0.0
     PADDING_MAX_TOK_PERCENT: float = 0.75
     USE_NARRATIVE_ANCHORS: bool = True
@@ -65,7 +101,11 @@ class Config:
     BEAT_GEN_TEMP: float = 0.5
     CREATIVE_NARRATIVE_TEMP: float = 0.5
     ANCHOR_GEN_TEMP: float = 0.85
-    LLM_VALIDATOR_MODEL: str = "google/gemini-2.5-flash-preview:thinking"
+    LLM_VALIDATOR_MODEL: str = os.environ.get(
+        "VLO_LLM_VALIDATOR_MODEL",
+        "google/gemini-2.5-flash" if VLO_BACKEND == "vertex"
+        else "google/gemini-2.5-flash-preview:thinking",
+    )
     LLM_VALIDATOR_TEMP: float = 0.05
     BEAT_REVISION_TEMP: float = 0.1
     MAX_LLM_VALIDATION_ITERATIONS: int = 6
@@ -270,7 +310,7 @@ ORDINAL_WORDS_TO_IGNORE = {
 }
 
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
-if not OPENROUTER_API_KEY:
+if VLO_BACKEND == "openrouter" and not OPENROUTER_API_KEY:
     print(
         "Warning: OPENROUTER_API_KEY environment variable not set. Using placeholder."
     )
@@ -597,16 +637,48 @@ print(
     f"Logger initialized with {len(logger.handlers)} handlers. Log file will be created at: {os.path.join(LOG_DIR, 'verbose_listops.log')}"
 )
 
-# --- Instantiate OpenAI Client for OpenRouter Endpoint ---
+# --- Instantiate OpenAI Client for the chosen backend ----------------------
 client = None
 try:
-    if not OPENROUTER_API_KEY or OPENROUTER_API_KEY == "YOUR_OPENROUTER_API_KEY_HERE":
-        raise ValueError("OpenRouter API Key not found or is placeholder.")
+    if VLO_BACKEND == "vertex":
+        # Vertex AI exposes an OpenAI-compatible endpoint per project/region.
+        # Auth: short-lived bearer token from Application Default Credentials
+        # (set up via `gcloud auth application-default login`). The token
+        # expires after ~60 min, but a 20-sample d=2 generation run finishes
+        # in well under that, so we don't refresh mid-batch here.
+        # If longer runs ever stall on auth, refresh by re-running this
+        # block or subclassing OpenAI with a per-call token refresh.
+        import google.auth
+        import google.auth.transport.requests
 
-    client = OpenAI(api_key=OPENROUTER_API_KEY, base_url="https://openrouter.ai/api/v1")
-    logger.info("OpenAI client configured to use OpenRouter API endpoint.")
+        gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        gcp_location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+        if not gcp_project:
+            raise ValueError(
+                "VLO_BACKEND=vertex but GOOGLE_CLOUD_PROJECT is not set."
+            )
+        creds, _ = google.auth.default(
+            scopes=["https://www.googleapis.com/auth/cloud-platform"]
+        )
+        creds.refresh(google.auth.transport.requests.Request())
+        client = OpenAI(
+            api_key=creds.token,
+            base_url=(
+                f"https://{gcp_location}-aiplatform.googleapis.com/v1/projects/"
+                f"{gcp_project}/locations/{gcp_location}/endpoints/openapi"
+            ),
+        )
+        logger.info(
+            f"OpenAI client configured for Vertex AI "
+            f"({gcp_project}, {gcp_location})."
+        )
+    else:
+        if not OPENROUTER_API_KEY or OPENROUTER_API_KEY == "YOUR_OPENROUTER_API_KEY_HERE":
+            raise ValueError("OpenRouter API Key not found or is placeholder.")
+        client = OpenAI(api_key=OPENROUTER_API_KEY, base_url="https://openrouter.ai/api/v1")
+        logger.info("OpenAI client configured to use OpenRouter API endpoint.")
 except Exception as e:
-    logger.error(f"Failed to configure OpenAI client for OpenRouter endpoint: {e}")
+    logger.error(f"Failed to configure OpenAI client (backend={VLO_BACKEND}): {e}")
     client = None
 
 
@@ -1156,7 +1228,7 @@ def build_random_ast(
         raise ValueError(
             f"max_branch ({max_branch}) < MIN_ARITY ({config_obj.MIN_ARITY})"
         )
-    ops = ["MAX", "MIN", "MED", "SUM", "SM", "AVG"]
+    ops = list(_VLO_OPS)  # local-fork: restrict op set via VLO_OPS env var
     count = 0
 
     def helper():
@@ -1365,7 +1437,7 @@ def build_random_ast(
         logger.debug(
             f"AST Gen: Original root was Atom, max_ops >=1. Wrapping with a random op."
         )
-        op = random.choice(ops)  # ops = ["MAX", "MIN", "MED", "SUM", "SM", "AVG"]
+        op = random.choice(ops)  # local-fork: ops restricted via VLO_OPS
         arity = random.randint(config_obj.MIN_ARITY, max_branch)
         children = [
             Atom(random.randint(config_obj.MIN_ATOM_VAL, config_obj.MAX_ATOM_VAL))
@@ -1485,6 +1557,39 @@ def eval_node(node: Node) -> int:
         raise
 
 
+def _ast_atoms(node: Node) -> list[int]:
+    """All atomic leaf values under `node` (local-fork helper)."""
+    if isinstance(node, Atom):
+        return [node.n]
+    out: list[int] = []
+    for c in node.children:
+        out += _ast_atoms(c)
+    return out
+
+
+def _is_shortcut_resistant(node: Node) -> bool:
+    """True iff the AST's true value differs from every naive shortcut, so
+    solving it requires respecting the nested structure (local-fork helper).
+    Shortcuts: flat sum/min/max/median over all atoms, and root-op applied to
+    all atoms ('flatten then apply the top operation')."""
+    atoms = _ast_atoms(node)
+    if not atoms:
+        return False
+    gold = eval_node(node)
+
+    def _med(xs):
+        s = sorted(xs); n = len(s)
+        return s[n // 2] if n % 2 else s[n // 2 - 1]
+
+    funcs = {"MAX": max, "MIN": min, "SUM": sum,
+             "SM": lambda a: sum(a) % 10,
+             "AVG": lambda a: sum(a) // len(a), "MED": _med}
+    sc = {sum(atoms), min(atoms), max(atoms), _med(atoms)}
+    if isinstance(node, OpNode) and node.op in funcs:
+        sc.add(funcs[node.op](atoms))
+    return gold not in sc
+
+
 def postorder(node: Node):
     """Yield nodes in post-order."""
     if node is None:  # Add this check to handle None values
@@ -1600,11 +1705,25 @@ def _chat_completion_call(*args, **kwargs):
 
     # Add JSON response format if requested
     if json_schema:
-        # Use full schema-based JSON formatting
-        openrouter_specific_params["response_format"] = {
-            "type": "json_schema",
-            "json_schema": json_schema,
-        }
+        # OpenAI's strict spec for response_format.json_schema is
+        #   {"type": "json_schema", "json_schema": {"name": "...", "schema": {...}}}
+        # OpenRouter is lenient and accepts the schema inlined directly under
+        # "json_schema", but Vertex AI's OpenAI-compat endpoint enforces the
+        # nested shape and 400s with "Expected input to contain field: 'name'."
+        # if the schema isn't wrapped. Wrap it conditionally on backend.
+        if VLO_BACKEND == "vertex":
+            openrouter_specific_params["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "vlo_structured_output",
+                    "schema": json_schema,
+                },
+            }
+        else:
+            openrouter_specific_params["response_format"] = {
+                "type": "json_schema",
+                "json_schema": json_schema,
+            }
         logger.debug(
             f"Using JSON schema validation for API call with schema: {json_schema.get('type', 'unknown')}"
         )
@@ -5007,6 +5126,29 @@ def generate_single_sample(sample_index: int, config_obj: Config) -> dict | None
             max_branch=config_obj.MAX_BRANCH,
             config_obj=config_obj,
         )
+        # local-fork: resample the AST until it's shortcut-resistant, so the
+        # narrativised sample can't be solved by a naive flatten-and-reduce
+        # heuristic. AST building is cheap (no LLM); only resistant ASTs go on
+        # to the expensive narrative pipeline.
+        if _VLO_SHORTCUT_FILTER:
+            _attempts = 0
+            while not _is_shortcut_resistant(node) and _attempts < 5000:
+                _attempts += 1
+                node = build_random_ast(
+                    max_ops=config_obj.MAX_OPS,
+                    max_branch=config_obj.MAX_BRANCH,
+                    config_obj=config_obj,
+                )
+            if not _is_shortcut_resistant(node):
+                logger.error(
+                    f"[Sample {sample_index+1}] could not find a shortcut-resistant "
+                    f"AST in {_attempts} attempts; proceeding with last one."
+                )
+            else:
+                logger.info(
+                    f"[Sample {sample_index+1}] shortcut-resistant AST found after "
+                    f"{_attempts} resample(s)."
+                )
 
         world_data = generate_world(
             num_characters=random.randint(
